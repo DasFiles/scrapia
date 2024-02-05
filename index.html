@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Scrapia - Wikipedia Search</title>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://amrit-corp.com/favicon.png"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="/stylesheets/srcwiki.css" />
+    <style>
+      * {
+        box-shadow: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container mt-3">
+      <nav
+        class="navbar navbar-expand-lg sticky-top"
+        style="z-index: 10 !important"
+      >
+        <a class="navbar-brand" href="https://wikipedia.org" target="_blank"
+          >Scrapia | Wikipedia Search
+          <img
+            style="width: 25px; padding: 0px; margin-right: 4px"
+            src="https://upload.wikimedia.org/wikipedia/en/thumb/8/80/Wikipedia-logo-v2.svg/1200px-Wikipedia-logo-v2.svg.png"
+        /></a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <form class="form-inline ml-auto">
+            <div class="input-group">
+              <input
+                type="text"
+                id="searchInput"
+                class="form-control"
+                placeholder="Search for..."
+                aria-label="Search"
+                aria-describedby="searchnote_wiki"
+              />
+              <div class="input-group-append">
+                <button
+                  id="searchnote_wiki"
+                  class="btn btn-outline-primary"
+                  type="button"
+                >
+                  Search
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </nav>
+      <div id="wksrrslt">
+        <div class="articles mt-3">
+          <center style="color: #b5b5b5; font-size: 14px">
+            <img
+              style="width: 200px; margin-top: 22vh; opacity: 0.8"
+              src="https://upload.wikimedia.org/wikipedia/en/thumb/8/80/Wikipedia-logo-v2.svg/1200px-Wikipedia-logo-v2.svg.png"
+            />
+            <div
+              style="display: block; word-wrap: break-word; margin-top: 160px"
+            >
+              <img
+                src="https://amrit-corp.com/corp-drive/imgsource/titlelogo.png"
+                style="width: 100px"
+              />
+              | Advance Media Representational Information Technologies | &copy;
+              2024 amrit-corp.com
+            </div>
+          </center>
+        </div>
+      </div>
+
+      <div id="rewiki" style="display: none"></div>
+
+      <center>
+        <div id="loader" style="display: none">Loading...</div>
+      </center>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        var articles = $(".articles");
+        var input = $("#searchInput");
+        var button = $("#searchnote_wiki");
+        var toSearch = "";
+        var searchUrl = "https://en.wikipedia.org/w/api.php";
+        var flaskAppUrl = "https://scrapia.amrit-corp.com/v?_url=";
+
+        $("#searchnote_wiki").on("click", function () {
+          toSearch = input.val();
+          articles.empty();
+          document.getElementById("rewiki").style.display = "none";
+          document.getElementById("loader").style.display = "block";
+          $("#wksrrslt").show();
+          ajaxArticleData();
+        });
+
+        articles.on("click", "a", function (event) {
+          event.preventDefault();
+          var fileUrl = $(this).attr("href");
+          $("#wksrrslt").hide();
+          document.getElementById("loader").style.display = "block";
+          document.getElementById("rewiki").style.display = "block";
+          document.getElementById("rewiki").innerHTML =
+            "<iframe src='" +
+            flaskAppUrl +
+            fileUrl +
+            "'></iframe><button onclick=\"$('#wksrrslt').show();document.getElementById('loader').style.display = 'none';document.getElementById('rewiki').innerHTML=''; document.getElementById('rewiki').style.display='none';\">CLOSE</button>";
+        });
+
+        var ajaxArticleData = function () {
+          $.ajax({
+            url: searchUrl,
+            dataType: "jsonp",
+            data: {
+              action: "query",
+              format: "json",
+              generator: "search",
+              gsrsearch: toSearch,
+              gsrnamespace: 0,
+              gsrlimit: 40,
+              prop: "extracts|pageimages",
+              exchars: 200,
+              exlimit: "max",
+              explaintext: true,
+              exintro: true,
+              piprop: "thumbnail",
+              pilimit: "max",
+              pithumbsize: 200,
+            },
+            success: function (json) {
+              var pages = json.query.pages;
+              $.map(pages, function (page) {
+                var pageElement = $(
+                  '<div class="row align-items-center srcrslt">'
+                );
+                if (page.thumbnail) {
+                  pageElement.append(
+                    $('<div class="col-md-3">').append(
+                      $("<img>")
+                        .attr("width", 150)
+                        .attr("src", page.thumbnail.source)
+                    )
+                  );
+                }
+                pageElement.append(
+                  $('<div class="col-md-9">').append(
+                    $("<h4>").append(
+                      $("<a>")
+                        .attr(
+                          "href",
+                          "http://en.wikipedia.org/wiki/" + page.title
+                        )
+                        .text(page.title)
+                    ),
+                    $('<p style="display: inline-block">').text(page.extract),
+                    $("<hr>")
+                  )
+                );
+                articles.append(pageElement);
+                document.getElementById("loader").style.display = "none";
+              });
+            },
+          });
+        };
+      });
+    </script>
+  </body>
+</html>

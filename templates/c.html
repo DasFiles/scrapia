@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scrapia - Wikipedia Search</title>
+    <style>
+      body {
+        width: 100%;
+        height: 100vh;
+        margin: 0px;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      #smallBrowser {
+        position: fixed;
+        top: 0vh;
+        right: 0;
+        width: 50%;
+        height: 100vh;
+        background-color: white;
+        overflow: hidden;
+        display: block;
+      }
+      .listitms {
+        top: 0px;
+        left: 0px;
+        width: 50%;
+        height: 100vh;
+        position: fixed;
+        background-color: #353535;
+        overflow-y: auto;
+        overflow-x: hidden;
+        word-wrap: break-word;
+        padding-top: 0px;
+        margin: 0px;
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        overflow-x: hidden;
+      }
+      img {
+        max-width: 150px;
+        padding: 5px;
+      }
+      a {
+        color: #b0b0b0;
+      }
+      .artcon {
+        font-size: 14px;
+        font-weight: 100;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        padding-left: 10px;
+        padding-right: 10px;
+        word-wrap: break-word;
+        color: #e0e0e0;
+        line-height: 1.5;
+      }
+      .imgcon {
+        background-color: #ffffffa1;
+      }
+
+      .lnkcon {
+        font-size: 12px;
+        padding: 10px;
+        background-color: #e4e4e4;
+      }
+      .lnkcon a {
+        text-decoration: none;
+        color: #6161ec;
+      }
+      a:hover {
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="listitms">
+      <div class="artcon">
+        {% for article in articles %}
+        <p>{{ article|safe }}</p>
+        {% endfor %}
+      </div>
+      <hr />
+
+      <div class="imgcon">
+        {% for image in images %}
+        <img src="{{ image.src }}" />
+        {% endfor %}
+      </div>
+
+      <hr />
+      <div class="lnkcon">
+        {% for link in links %}
+        <a href="{{ link.href }}" target="_blank">{{ link.text }}</a> | {%
+        endfor %}
+      </div>
+    </div>
+
+    <!-- Small browser window container -->
+    <div id="smallBrowser">
+      <iframe id="browserFrame" src="{{ file_url}}"></iframe>
+    </div>
+
+    <script>
+      // Function to open a link in the small browser window
+      function openLinkInSmallBrowser(link) {
+        var smallBrowser = document.getElementById("smallBrowser");
+        var browserFrame = document.getElementById("browserFrame");
+
+        // Set the link URL to the iframe
+        browserFrame.src = link;
+
+        // Display the small browser window
+        smallBrowser.style.display = "block";
+      }
+
+      // Function to close the small browser window
+      function closeSmallBrowser() {
+        var smallBrowser = document.getElementById("smallBrowser");
+
+        // Hide the small browser window
+        smallBrowser.style.display = "none";
+      }
+
+      // Call the functions after the content is loaded
+      window.addEventListener("load", function () {
+        var links = document.querySelectorAll("a");
+
+        links.forEach(function (link) {
+          // Add click event listener to each link to open in the small browser window
+          link.addEventListener("click", function (event) {
+            event.preventDefault(); // Prevent the default link behavior
+
+            // Open the link in the small browser window
+            openLinkInSmallBrowser(link.href);
+          });
+        });
+
+        // Add click event listener to close the small browser window
+        var smallBrowser = document.getElementById("smallBrowser");
+        smallBrowser.addEventListener("click", closeSmallBrowser);
+      });
+    </script>
+  </body>
+</html>
