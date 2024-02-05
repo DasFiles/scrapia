@@ -98,7 +98,8 @@ def index():
     file_url = request.args.get('_url', '')
 
     if not file_url:
-        return render_template('index.html',file_url=file_url)
+         response = render_template('index.html')
+         return response
 
     # Make an HTTP request to get the content of the file
     response = requests.get(file_url)
@@ -113,7 +114,8 @@ def index():
         links, images, articles = replace_relative_paths_with_base_domain(file_content, base_url)
 
         # Pass the content to the template
-        return render_template('c.html', links=links, images=images, articles=articles, file_url=file_url)
+        response = render_template('c.html', links=links, images=images, articles=articles, file_url=file_url)
+        return response
     else:
         error_message = f"Failed to fetch the file. Status code: {response.status_code}"
         return render_template('error.html', error_message=error_message)
