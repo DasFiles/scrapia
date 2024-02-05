@@ -98,7 +98,7 @@ def index():
     file_url = request.args.get('_url', '')
 
     if not file_url:
-        return render_template('index.html')
+        return render_template('index.html',file_url=file_url)
 
     # Make an HTTP request to get the content of the file
     response = requests.get(file_url)
