@@ -98,8 +98,7 @@ def index():
     file_url = request.args.get('_url', '')
 
     if not file_url:
-        error_message = "Please provide a valid file URL using the '_url' query parameter."
-        return render_template('error.html', error_message=error_message)
+        return render_template('index.html')
 
     # Make an HTTP request to get the content of the file
     response = requests.get(file_url)
